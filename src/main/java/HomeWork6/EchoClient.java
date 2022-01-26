@@ -18,6 +18,7 @@ public class EchoClient {
 
     }
 
+
     public EchoClient() {
         start();
         Scanner scanner = new Scanner(System.in);
