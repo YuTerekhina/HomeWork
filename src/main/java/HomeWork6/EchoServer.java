@@ -32,10 +32,10 @@ public class EchoServer {
             final DataInputStream in = new DataInputStream(socket.getInputStream());
             final DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 
-            String message = in.readUTF();
-            System.out.println("Получено сообщение от клиента: " + message);
 
             while (true) {
+                final String message = in.readUTF();
+                System.out.println("Получено сообщение от клиента: " + message);
                 if ("/end".equalsIgnoreCase(message)) {
                     System.out.println("Клиент отключился");
                     out.writeUTF("/end");
@@ -43,6 +43,11 @@ public class EchoServer {
                 }
 
                 out.writeUTF(scanner.nextLine());
+                if ("/end".equalsIgnoreCase(scanner.nextLine())){
+                    socket.close();
+                    break;
+                }
+
 
             }
         } catch (IOException e) {
