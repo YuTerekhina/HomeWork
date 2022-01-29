@@ -47,10 +47,7 @@ public class EchoServer {
                 }
 
                 System.out.println("Получено сообщение от клиента: " + message);
-                if ("/end".equalsIgnoreCase(message)){
-                    System.exit(0);
-                    break;
-                }
+
 
             }
         } catch (IOException e) {
