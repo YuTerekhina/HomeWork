@@ -8,53 +8,51 @@ import java.net.Socket;
 import java.util.Scanner;
 
 public class EchoServer {
-    Scanner scanner = new Scanner(System.in);
-    public DataOutputStream out;
-
+    private DataInputStream in;
+    private DataOutputStream out;
 
     public static void main(String[] args) {
-        new EchoServer();
+        new EchoServer().start();
     }
 
-    public EchoServer() {
-        start();
-
-    }
-
-    private void start() {
+    public void start() {
         Socket socket = null;
+        Scanner scanner = new Scanner(System.in);
 
         try (ServerSocket serverSocket = new ServerSocket(8189)) {
             System.out.println("Сервер запущен, ожидаем подключения...");
             socket = serverSocket.accept();
-            System.out.println("Клиент подключился... ");
+            System.out.println("Клиент подключился...");
+            in = new DataInputStream(socket.getInputStream());
+            out = new DataOutputStream(socket.getOutputStream());
 
-            final DataInputStream in = new DataInputStream(socket.getInputStream());
-            final DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-
+            Thread serverThread = new Thread(() -> {
+                try {
+                    while (true) {
+                        out.writeUTF(scanner.nextLine());
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+            serverThread.setDaemon(true);
+            serverThread.start();
 
             while (true) {
-                final String message = in.readUTF();
-                System.out.println("Получено сообщение от клиента: " + message);
+                String message = in.readUTF();
                 if ("/end".equalsIgnoreCase(message)) {
                     System.out.println("Клиент отключился");
                     out.writeUTF("/end");
                     break;
                 }
 
-                out.writeUTF(scanner.nextLine());
-                if ("/end".equalsIgnoreCase(scanner.nextLine())){
-                    socket.close();
-                    break;
-                }
+                System.out.println("Получено сообщение от клиента: " + message);
 
 
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
         if (socket != null) {
             try {
                 socket.close();
